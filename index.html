@@ -5,155 +5,400 @@
 <title>Валентинка</title>
 
 <style>
-body{
-  text-align:center;
-  font-family: Arial;
-  background:#ffd6e8;
-  overflow:hidden;
-  margin:0;
-}
+  body{
+    text-align:center;
+    font-family: Arial, sans-serif;
+    background:#ffd6e8;
+    overflow:hidden;
+    margin:0;
+    padding:0;
+  }
 
-h1{
-  position:relative;
-  z-index:2;
-  margin-top:30px;
-}
+  h1{
+    position:relative;
+    z-index:2;
+    margin-top:30px;
+  }
 
-#msg{
-  position:relative;
-  z-index:3;
-  font-size:24px;
-  font-weight:bold;
-  margin-top:10px;
-}
+  #msg{
+    position:relative;
+    z-index:3;
+    font-size:24px;
+    font-weight:bold;
+    margin-top:10px;
+    min-height: 28px;
+  }
 
-img{
-  width:80%;
-  max-width:420px;
-  border-radius:20px;
-  position:relative;
-  z-index:2;
-  margin-top:10px;
-}
+  img#pic{
+    width:80%;
+    max-width:420px;
+    border-radius:20px;
+    position:relative;
+    z-index:2;
+    margin-top:10px;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+  }
 
-button{
-  padding:15px 25px;
-  font-size:20px;
-  margin:10px;
-  border-radius:10px;
-  cursor:pointer;
-}
+  button{
+    padding:15px 25px;
+    font-size:20px;
+    margin:10px;
+    border-radius:10px;
+    cursor:pointer;
+    position:relative;
+    z-index:2;
+    border:0;
+    background:#fff;
+    box-shadow:0 10px 20px rgba(0,0,0,.12);
+  }
+  button:active{ transform: translateY(1px); }
+  button[disabled]{ opacity:.6; cursor:default; }
 
-/* сердечки вверх */
-.heart{
-  position:fixed;
-  bottom:-20px;
-  font-size:20px;
-  animation: floatUp linear infinite;
-  opacity:.75;
-  z-index:1;
-  pointer-events:none;
-}
+  /* ЛЕТЯЩИЕ СЕРДЕЧКИ */
+  .fly{
+    position:fixed;
+    bottom:-30px;
+    animation: floatUp linear infinite;
+    opacity:.85;
+    z-index:1;
+    pointer-events:none;
+  }
+  @keyframes floatUp{
+    from{ transform: translateY(0); }
+    to{ transform: translateY(-110vh); }
+  }
 
-@keyframes floatUp{
-  from{ transform: translateY(0); }
-  to{ transform: translateY(-110vh); }
-}
+  /* КОНФЕТТИ */
+  .blast{
+    position:fixed;
+    z-index:50;
+    pointer-events:none;
+    animation: blastMove var(--dur) ease-out forwards;
+    font-size:var(--size);
+    left:var(--x);
+    top:var(--y);
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.10));
+  }
+  @keyframes blastMove{
+    0%{ transform: translate(0,0); opacity:1; }
+    100%{ transform: translate(var(--dx), var(--dy)); opacity:0; }
+  }
 
-/* конфетти */
-.blast{
-  position:fixed;
-  z-index:5;
-  pointer-events:none;
-  animation: blastMove var(--dur) ease-out forwards;
-  font-size:var(--size);
-  left:var(--x);
-  top:var(--y);
-}
+  /* ===== ЭКРАНЫ ===== */
+  .screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    padding:20px;
+    box-sizing:border-box;
+  }
+  .hidden{ display:none !important; }
 
-@keyframes blastMove{
-  0%{ transform: translate(0,0); opacity:1; }
-  100%{ transform: translate(var(--dx), var(--dy)); opacity:0; }
-}
+  /* ===== ПАЗЛ (ЦЕЛЬНЫЙ БЕЗ ЗАЗОРОВ) ===== */
+  #puzzleTitle{
+    font-size:28px;
+    font-weight:900;
+    margin:0 0 14px 0;
+    position:relative;
+    z-index:5;
+  }
+
+  #puzzleWrap{
+    width:min(520px, 94vw);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+  }
+
+  #puzzleStage{
+    width:min(460px, 92vw);
+    aspect-ratio: 1 / 1;
+    position:relative;
+
+    border-radius:18px;
+    box-shadow:0 16px 30px rgba(0,0,0,.14);
+    overflow:hidden;
+    background: rgba(255,255,255,.25);
+  }
+
+  #pieces{
+    position:absolute;
+    inset:0;
+  }
+
+  .piece{
+    position:absolute;
+    width:50%;
+    height:50%;
+
+    background-image: var(--img);
+    background-size: 200% 200%;
+    background-repeat:no-repeat;
+    background-position: var(--pos);
+
+    cursor:grab;
+    user-select:none;
+    touch-action:none;
+
+    border-radius:0;
+    box-shadow:none;
+  }
+  .piece:active{ cursor:grabbing; }
+
+  .piece.tl{ border-top-left-radius:18px; }
+  .piece.tr{ border-top-right-radius:18px; }
+  .piece.bl{ border-bottom-left-radius:18px; }
+  .piece.br{ border-bottom-right-radius:18px; }
+
+  .piece.locked{
+    cursor:default;
+    pointer-events:none;
+  }
+
+  #nextBtn{
+    display:none;
+    margin-top:8px;
+  }
+
+  .snap{
+    animation:snap .18s ease-out;
+  }
+  @keyframes snap{
+    0%{ transform: scale(1.02); }
+    100%{ transform: scale(1); }
+  }
 </style>
 </head>
 
 <body>
 
-<h1>Ты будешь моей валентинкой? 💘</h1>
-<div id="msg"></div>
+<!-- 1) ОСНОВНОЙ ЭКРАН -->
+<div id="screenMain" class="screen">
+  <h1>Ты будешь моей валентинкой? 💘</h1>
+  <div id="msg"></div>
 
-<img id="pic" src="https://i.pinimg.com/originals/6d/b4/1c/6db41c67d4c714cc0cec2f6a15602e5a.gif">
+  <img id="pic" src="https://i.pinimg.com/originals/6d/b4/1c/6db41c67d4c714cc0cec2f6a15602e5a.gif">
+  <br><br>
 
-<br><br>
+  <div id="choices">
+    <button onclick="yes()">Да 💖</button>
+    <button onclick="no()">Нет 😈</button>
+  </div>
+</div>
 
-<button onclick="yes()">Да 💖</button>
-<button onclick="no()">Нет 😈</button>
+<!-- 2) ПАЗЛ -->
+<div id="screenPuzzle" class="screen hidden">
+  <div id="puzzleTitle">Собери пазл</div>
+
+  <div id="puzzleWrap">
+    <div id="puzzleStage">
+      <div id="pieces"></div>
+    </div>
+
+    <button id="nextBtn">Next</button>
+  </div>
+</div>
+
+<!-- 3) ФИНАЛ ДЛЯ "ДА" -->
+<div id="screenFinal" class="screen hidden">
+  <h1> </h1>
+  <div id="msgFinal" style="font-size:26px;font-weight:900;min-height:30px;"></div>
+  <img id="picFinal" src="" alt="" style="width:80%;max-width:420px;border-radius:20px;box-shadow:0 10px 22px rgba(0,0,0,.12);">
+</div>
 
 <script>
-const msg = document.getElementById("msg");
-const pic = document.getElementById("pic");
+  const msg = document.getElementById("msg");
+  const pic = document.getElementById("pic");
 
-/* сердечки */
-let hearts;
-function createHeart(){
-  const heart=document.createElement("div");
-  heart.className="heart";
-  heart.innerText="💖";
-  heart.style.left=Math.random()*100+"vw";
-  heart.style.animationDuration=3+Math.random()*3+"s";
-  document.body.appendChild(heart);
-  setTimeout(()=>heart.remove(),6000);
-}
-function startHearts(){ hearts=setInterval(createHeart,300); }
-function stopHearts(){
-  clearInterval(hearts);
-  document.querySelectorAll(".heart").forEach(h=>h.remove());
-}
-startHearts();
+  const YES_GIF = "https://i.pinimg.com/originals/a6/fe/3c/a6fe3c1ef45d9d041626f7bab516b44b.gif";
+  const NO_GIF  = "https://i.pinimg.com/originals/c2/ef/a1/c2efa1e1dcea0248a26606f6460d652d.gif";
 
-/* кнопка Да */
-function yes(){
-  pic.src="https://i.pinimg.com/originals/a6/fe/3c/a6fe3c1ef45d9d041626f7bab516b44b.gif";
-  msg.innerText="I love you ❤️";
+  const PUZZLE_IMG = "https://i.pinimg.com/736x/aa/31/f8/aa31f850ce54d588d07c78817f1252e7.jpg";
 
-  stopHearts();
+  const screenMain = document.getElementById("screenMain");
+  const screenPuzzle = document.getElementById("screenPuzzle");
+  const screenFinal = document.getElementById("screenFinal");
 
-  blast();
-  setTimeout(blast,300);
-  setTimeout(blast,600);
+  const piecesLayer = document.getElementById("pieces");
+  const nextBtn = document.getElementById("nextBtn");
 
-  setTimeout(startHearts,2500);
-}
+  const msgFinal = document.getElementById("msgFinal");
+  const picFinal = document.getElementById("picFinal");
 
-/* кнопка Нет */
-function no(){
-  pic.src="https://i.pinimg.com/originals/c2/ef/a1/c2efa1e1dcea0248a26606f6460d652d.gif";
-  msg.innerText="вийди атсюда, розбійник";
-}
+  /* ===== ЛЕТЯЩИЕ СЕРДЕЧКИ (остаются на всех экранах) ===== */
+  let flyIntervalId = null;
 
-/* конфетти */
-function blast(){
-  const emojis=["❤️","💋"];
-  for(let i=0;i<70;i++){
-    const el=document.createElement("div");
-    el.className="blast";
-    el.innerText=emojis[Math.random()*2|0];
-
-    const angle=Math.random()*Math.PI*2;
-    const power=200+Math.random()*500;
-
-    el.style.setProperty("--x",window.innerWidth/2+"px");
-    el.style.setProperty("--y",window.innerHeight/2+"px");
-    el.style.setProperty("--dx",Math.cos(angle)*power+"px");
-    el.style.setProperty("--dy",Math.sin(angle)*power+"px");
-    el.style.setProperty("--dur",2+Math.random()*1.5+"s");
-    el.style.setProperty("--size",18+Math.random()*24+"px");
-
+  function createFly(){
+    const el = document.createElement("div");
+    el.className = "fly";
+    el.innerText = "💗";
+    el.style.left = Math.random()*100 + "vw";
+    el.style.fontSize = (18 + Math.random()*10) + "px";
+    el.style.animationDuration = (3 + Math.random()*3) + "s";
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),3000);
+    setTimeout(() => el.remove(), 6500);
   }
-}
+  function startFly(){
+    if (flyIntervalId) return;
+    flyIntervalId = setInterval(createFly, 300);
+  }
+  startFly();
+
+  /* ===== КОНФЕТТИ ===== */
+  function blast(){
+    const emojis = ["❤️","💋"];
+    const count = 70;
+    const cx = window.innerWidth/2;
+    const cy = window.innerHeight/2;
+
+    for(let i=0;i<count;i++){
+      const el = document.createElement("div");
+      el.className = "blast";
+      el.innerText = emojis[Math.random()*2|0];
+
+      const angle = Math.random()*Math.PI*2;
+      const power = 200 + Math.random()*500;
+
+      el.style.setProperty("--x", cx + "px");
+      el.style.setProperty("--y", cy + "px");
+      el.style.setProperty("--dx", Math.cos(angle)*power + "px");
+      el.style.setProperty("--dy", Math.sin(angle)*power + "px");
+      el.style.setProperty("--dur", (2 + Math.random()*1.5) + "s");
+      el.style.setProperty("--size", (18 + Math.random()*24) + "px");
+
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+  }
+
+  /* ===== ДА/НЕТ ===== */
+  window.yes = function(){
+    screenMain.classList.add("hidden");
+    screenPuzzle.classList.remove("hidden");
+    initPuzzle();
+  }
+
+  window.no = function(){
+    pic.src = NO_GIF;
+    msg.innerText = "вийди атсюда розбійник ";
+  }
+
+  /* ===== ПАЗЛ 2x2 (липнет и не двигается) ===== */
+  const N = 2;
+  const locked = new Set();
+
+  function initPuzzle(){
+    locked.clear();
+    nextBtn.style.display = "none";
+    piecesLayer.innerHTML = "";
+
+    const pieceCornerClasses = ["tl","tr","bl","br"];
+
+    for(let i=0;i<N*N;i++){
+      const row = Math.floor(i / N);
+      const col = i % N;
+
+      const piece = document.createElement("div");
+      piece.className = "piece " + pieceCornerClasses[i];
+      piece.dataset.index = i;
+      piece.dataset.row = row;
+      piece.dataset.col = col;
+
+      piece.style.setProperty("--img", `url("${PUZZLE_IMG}")`);
+      piece.style.setProperty("--pos", `${(col/(N-1))*100}% ${(row/(N-1))*100}%`);
+
+      const stageRect = document.getElementById("puzzleStage").getBoundingClientRect();
+      const pieceSize = stageRect.width / N;
+
+      const pad = 6;
+      const startX = pad + Math.random()*(stageRect.width - pieceSize - pad*2);
+      const startY = pad + Math.random()*(stageRect.height - pieceSize - pad*2);
+
+      piece.style.left = startX + "px";
+      piece.style.top  = startY + "px";
+
+      enableDrag(piece);
+      piecesLayer.appendChild(piece);
+    }
+  }
+
+  function enableDrag(el){
+    let startX=0, startY=0, baseLeft=0, baseTop=0;
+    let dragging = false;
+
+    el.addEventListener("pointerdown", (e) => {
+      if (el.classList.contains("locked")) return;
+      dragging = true;
+      el.setPointerCapture(e.pointerId);
+
+      el.style.zIndex = 999;
+
+      startX = e.clientX;
+      startY = e.clientY;
+      baseLeft = parseFloat(el.style.left);
+      baseTop  = parseFloat(el.style.top);
+    });
+
+    el.addEventListener("pointermove", (e) => {
+      if(!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      el.style.left = (baseLeft + dx) + "px";
+      el.style.top  = (baseTop + dy) + "px";
+    });
+
+    el.addEventListener("pointerup", () => {
+      if(!dragging) return;
+      dragging = false;
+      el.style.zIndex = "";
+      trySnap(el);
+    });
+  }
+
+  function trySnap(piece){
+    const row = +piece.dataset.row;
+    const col = +piece.dataset.col;
+    const idx = +piece.dataset.index;
+
+    const stageRect = document.getElementById("puzzleStage").getBoundingClientRect();
+    const pieceSize = stageRect.width / N;
+
+    const targetLeft = col * pieceSize;
+    const targetTop  = row * pieceSize;
+
+    const curLeft = parseFloat(piece.style.left);
+    const curTop  = parseFloat(piece.style.top);
+
+    const dist = Math.hypot(curLeft - targetLeft, curTop - targetTop);
+
+    if(dist < 35){
+      piece.style.left = targetLeft + "px";
+      piece.style.top  = targetTop  + "px";
+
+      piece.classList.add("locked", "snap");
+      setTimeout(()=>piece.classList.remove("snap"), 200);
+
+      locked.add(idx);
+
+      if(locked.size === N*N){
+        nextBtn.style.display = "inline-block";
+      }
+    }
+  }
+
+  nextBtn.addEventListener("click", () => {
+    screenPuzzle.classList.add("hidden");
+    screenFinal.classList.remove("hidden");
+
+    msgFinal.innerText = "I love you ❤️";
+    picFinal.src = YES_GIF;
+
+    blast(); setTimeout(blast, 300); setTimeout(blast, 600);
+    // сердечки продолжают лететь, ничего не выключаем
+  });
 </script>
 
 </body>
